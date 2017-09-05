@@ -1,0 +1,7 @@
+# System crap
+.DS_Store
+thumbs.db
+.thumbs.db
+
+# Folders
+out/

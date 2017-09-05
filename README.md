@@ -1,2 +1,2 @@
-# GameLauncher
-A launcher for your game.
+# Game Launcher
+A launcher made with Java to help with updating and playing games.
