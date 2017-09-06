@@ -1,0 +1,206 @@
+//
+//  Launcher.java
+//  Reworks Launcher
+//
+//  Created by reworks on 5/01/2017.
+//  Copyright (c) 2017 reworks. All rights reserved.
+//
+import java.io.IOException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import java.awt.BorderLayout;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
+
+import javax.imageio.ImageIO;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
+public class Launcher extends Canvas
+{
+	private static final long serialVersionUID = 1L;
+
+	public static int SCREEN_WIDTH = 1024;
+	public static int SCREEN_HEIGHT = 576;
+
+	private boolean m_running = true;
+
+	private JFrame m_frame;
+	private BufferedImage m_bg;
+	private BufferedImage m_icon;
+	private Downloader m_dl;
+
+	private JPanel m_northPanel;
+	private JPanel m_southPanel;
+	private JButton m_rengineButton;
+	private JButton m_ebookButton;
+	private JButton m_websiteButton;
+	private JButton m_youtubeButton;
+	private JProgressBar m_downloadBar;
+
+	public Launcher()
+	{
+		m_dl = new Downloader();
+
+		if(!Desktop.isDesktopSupported())
+		{
+			System.out.println("WARNING: Opening URLs not supported!");
+		}
+
+		Dimension size = new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT);
+		setPreferredSize(size);
+
+		try
+		{
+			m_bg = ImageIO.read(getClass().getResource("res/bg.png"));
+			m_icon = ImageIO.read(getClass().getResource("res/icon.png"));
+
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		catch (IOException | ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)
+		{
+			e.printStackTrace();
+		}
+
+		m_northPanel = new JPanel();
+		m_southPanel = new JPanel();
+		m_rengineButton = new JButton("Download REngine3");
+		m_ebookButton = new JButton("Download 3DS eBook Reader");
+		m_websiteButton = new JButton("My Website");
+		m_youtubeButton = new JButton("My Youtube");
+
+		m_downloadBar = new JProgressBar(0, 100);
+		m_downloadBar.setValue(0);
+		m_downloadBar.setStringPainted(true);
+
+		m_rengineButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 m_dl = new Downloader("https://api.github.com/repos/reworks/REngine3/releases/latest");
+	        	 new Thread()
+	        	 {
+	        		 public void run()
+	        		 {
+	        			 m_dl.start(0);
+	        		 }
+	        	 }.start();
+	         }
+	      });
+
+		m_ebookButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 m_dl = new Downloader("https://api.github.com/repos/works/3DS_eBook_Reader/releases/latest");
+	        	 new Thread()
+	        	 {
+	        		 public void run()
+	        		 {
+	        			 m_dl.start(0);
+	        		 }
+	        	 }.start();
+	         }
+	      });
+
+		m_websiteButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 try
+	        	 {
+					Desktop.getDesktop().browse(new URI("https://reworks.github.io/"));
+				 }
+	        	 catch (IOException | URISyntaxException e1)
+	        	 {
+					e1.printStackTrace();
+				 }
+	         }
+	      });
+
+		m_youtubeButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 try
+	        	 {
+					Desktop.getDesktop().browse(new URI("https://www.youtube.com/channel/UC1RCxcS9h1CQ6iFCrJv1ZAQ"));
+				 }
+	        	 catch (IOException | URISyntaxException e1)
+	        	 {
+					e1.printStackTrace();
+				 }
+	         }
+	      });
+
+		m_northPanel.setBackground(Color.WHITE);
+		m_southPanel.setBackground(Color.WHITE);
+
+		m_frame = new JFrame("Reworks Launcher");
+		m_frame.setResizable(false);
+		m_frame.setIconImage(m_icon);
+
+		m_southPanel.add(m_rengineButton);
+		m_southPanel.add(m_downloadBar);
+		m_southPanel.add(m_ebookButton);
+
+		m_northPanel.add(m_websiteButton);
+		m_northPanel.add(m_youtubeButton);
+
+		m_frame.add(m_southPanel, BorderLayout.SOUTH);
+		m_frame.add(m_northPanel, BorderLayout.NORTH);
+		m_frame.add(this);
+
+		m_frame.pack();
+		m_frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		m_frame.setLocationRelativeTo(null);
+		m_frame.setVisible(true);
+	}
+
+	public void run()
+	{
+		while (m_running)
+		{
+			update();
+			render();
+		}
+	}
+
+	public void update()
+	{
+		if (m_dl.isDownloading())
+		{
+			JProgressBar bar = (JProgressBar)m_southPanel.getComponent(1);
+			bar.setValue(m_dl.getProgress());
+		}
+	}
+
+	public void render()
+	{
+		BufferStrategy bs = getBufferStrategy();
+		if (bs == null)
+		{
+			createBufferStrategy(3);
+			return;
+		}
+
+		Graphics g = bs.getDrawGraphics();
+
+		g.drawImage(m_bg, 0, 0, null);
+
+		g.dispose();
+		bs.show();
+	}
+
+	public static void main(String[] args)
+	{
+		Launcher launcher = new Launcher();
+		launcher.run();
+	}
+}
