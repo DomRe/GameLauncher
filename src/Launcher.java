@@ -8,6 +8,7 @@
 
 // http://tutorials.jenkov.com/java-json/gson-jsonparser.html
 // https://docs.oracle.com/javase/tutorial/displayCode.html?code=https://docs.oracle.com/javase/tutorial/uiswing/examples/components/ProgressBarDemoProject/src/components/ProgressBarDemo.java
+// https://github.com/kamranzafar/jddl/blob/master/src/test/java/org/kamranzafar/jddl/SwingTest.java
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -54,7 +55,7 @@ public class Launcher extends Canvas
         String l_out = "config.json";
 
         try {
-            l_dd.download( new DownloadTask( new URL( updateURL ), new FileOutputStream( l_out ), new DownloadListener() {
+            l_dd.download( new DownloadTask( new URL(updateURL), new FileOutputStream( l_out ), new DownloadListener() {
                 public void onUpdate(int bytes, int totalDownloaded) {
                 }
 
