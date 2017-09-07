@@ -6,5 +6,6 @@
 	"icon": "res/icon.png",
 	"downloadURL": "https://www.google.com.au",
 	"gamePath": "bin/",
-	"gameBinary": "sandbox.exe"
+	"gameBinary": "sandbox.exe",
+	"gameVer": "1.0.0"
 }
