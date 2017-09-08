@@ -47,7 +47,6 @@ public class Launcher extends Canvas
 	private JButton m_updateButton;
 	private JButton m_launchButton;
     private JProgressBar m_downloadProgress;
-    private JTextArea m_downloadOutput;
 
 	public Launcher(String updateURL)
     {
@@ -150,6 +149,11 @@ public class Launcher extends Canvas
         m_launchButton = new JButton("Launch Game");
         m_updateButton = new JButton("Update Game");
 
+        m_downloadProgress = new JProgressBar();
+        m_downloadProgress.setMinimum(0);
+        m_downloadProgress.setValue(0);
+        m_downloadProgress.setStringPainted(true);
+
         m_southPanel.setBackground(Color.WHITE);
         m_launchButton.addActionListener(new ActionListener()
         {
@@ -173,11 +177,43 @@ public class Launcher extends Canvas
         {
             public void actionPerformed(ActionEvent e)
             {
+                DirectDownloader dd = new DirectDownloader();
 
+                try {
+                    dd.download( new DownloadTask( new URL( m_downloadURL ), new FileOutputStream( m_gamePath + "update.zip" ), new DownloadListener() {
+                        public void onUpdate(int bytes, int totalDownloaded) {
+                            m_downloadProgress.setValue(totalDownloaded);
+                        }
+
+                        public void onStart(String fname, int size) {
+                            m_downloadProgress.setMaximum(size);
+                        }
+
+                        public void onComplete() {
+                            m_downloadProgress.setValue(0);
+                        }
+
+                        public void onCancel() {
+                        }
+                    } ) );
+                } catch (MalformedURLException e1) {
+                    e1.printStackTrace();
+                } catch (FileNotFoundException e1) {
+                    e1.printStackTrace();
+                }
+
+                Thread t = new Thread( dd );
+                t.start();
+                try {
+                    t.join();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
         });
 
         m_southPanel.add(m_launchButton);
+        m_southPanel.add(m_downloadProgress);
         m_southPanel.add(m_updateButton);
 
         m_frame.add(m_southPanel, BorderLayout.SOUTH);

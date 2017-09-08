@@ -4,7 +4,7 @@
 	"screenHeight": "576",
 	"background": "res/bg.png",
 	"icon": "res/icon.png",
-	"downloadURL": "https://www.google.com.au",
+	"downloadURL": "https://github.com/kamranzafar/jddl/archive/master.zip",
 	"gamePath": "bin/",
 	"gameBinary": "sandbox.exe",
 	"gameVer": "1.0.0"
