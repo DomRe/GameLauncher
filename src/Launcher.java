@@ -191,6 +191,7 @@ public class Launcher extends Canvas
 
                         public void onComplete() {
                             m_downloadProgress.setValue(0);
+                            extractUpdate();
                         }
 
                         public void onCancel() {
@@ -224,6 +225,10 @@ public class Launcher extends Canvas
         m_frame.setVisible(true);
 
         m_configUpdate = true;
+    }
+
+    private void extractUpdate()
+    {
     }
 
 	public void run()
