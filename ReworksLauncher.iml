@@ -11,5 +11,14 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="commonsio" level="project" />
     <orderEntry type="library" name="gson" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/zip4j/zip4j_1.3.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

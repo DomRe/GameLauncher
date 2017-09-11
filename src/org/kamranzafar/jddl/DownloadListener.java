@@ -22,11 +22,11 @@ package org.kamranzafar.jddl;
  * 
  */
 public interface DownloadListener {
-	public void onStart(String fname, int fsize);
+	void onStart(String fname, int fsize);
 
-	public void onUpdate(int bytes, int totalDownloaded);
+	void onUpdate(int bytes, int totalDownloaded);
 
-	public void onComplete();
+	void onComplete();
 
-	public void onCancel();
+	void onCancel();
 }

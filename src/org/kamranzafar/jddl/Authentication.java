@@ -18,7 +18,7 @@
 package org.kamranzafar.jddl;
 
 public class Authentication {
-	public static enum AuthType {
+	public enum AuthType {
 		BASIC
 	}
 

@@ -6,55 +6,54 @@
 //  Copyright (c) 2017 reworks. All rights reserved.
 //
 
-// http://tutorials.jenkov.com/java-json/gson-jsonparser.html
-// https://docs.oracle.com/javase/tutorial/displayCode.html?code=https://docs.oracle.com/javase/tutorial/uiswing/examples/components/ProgressBarDemoProject/src/components/ProgressBarDemo.java
-// https://github.com/kamranzafar/jddl/blob/master/src/test/java/org/kamranzafar/jddl/SwingTest.java
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.kamranzafar.jddl.*;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+import org.kamranzafar.jddl.DirectDownloader;
+import org.kamranzafar.jddl.DownloadListener;
+import org.kamranzafar.jddl.DownloadTask;
 
 import javax.imageio.ImageIO;
-
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static java.lang.Thread.sleep;
 
-public class Launcher extends Canvas
-{
-	private boolean m_running = true;
-	private boolean m_configUpdate = false;
+public class Launcher extends Canvas {
+    private boolean m_running = true;
+    private boolean m_configUpdate = false;
 
-	private String m_downloadURL = "";
-	private String m_gameBinary = "";
-	private String m_gamePath = "";
+    private String m_downloadURL = "";
+    private String m_gameBinary = "";
+    private String m_gamePath = "";
 
-	private JFrame m_frame;
-	private BufferedImage m_bg;
-	private BufferedImage m_icon;
+    private double m_gameVersion;
 
-	private JPanel m_southPanel;
-	private JButton m_updateButton;
-	private JButton m_launchButton;
+    private JFrame m_frame;
+    private BufferedImage m_bg;
+    private BufferedImage m_icon;
+
+    private JPanel m_southPanel;
+    private JButton m_updateButton;
+    private JButton m_launchButton;
     private JProgressBar m_downloadProgress;
 
-	public Launcher(String updateURL)
-    {
+    public Launcher(String updateURL) {
         DirectDownloader l_dd = new DirectDownloader();
         String l_out = "config.json";
 
         try {
-            l_dd.download( new DownloadTask( new URL(updateURL), new FileOutputStream( l_out ), new DownloadListener() {
+            l_dd.download(new DownloadTask(new URL(updateURL), new FileOutputStream(l_out), new DownloadListener() {
                 public void onUpdate(int bytes, int totalDownloaded) {
                 }
 
@@ -67,14 +66,14 @@ public class Launcher extends Canvas
 
                 public void onCancel() {
                 }
-            } ) );
+            }));
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-        Thread l_t = new Thread( l_dd );
+        Thread l_t = new Thread(l_dd);
         l_t.start();
         try {
             l_t.join();
@@ -82,8 +81,7 @@ public class Launcher extends Canvas
             e.printStackTrace();
         }
 
-        while (!m_configUpdate)
-        {
+        while (!m_configUpdate) {
             try {
                 sleep(50);
             } catch (InterruptedException e) {
@@ -91,18 +89,25 @@ public class Launcher extends Canvas
             }
             System.out.println("Waiting for config...");
         }
-	}
 
-	private void finishSetup()
-    {
+        try {
+            double oldVer = Double.parseDouble(new String(Files.readAllBytes(Paths.get("bin/version.txt"))));
+            if (oldVer != m_gameVersion) {
+                JOptionPane.showMessageDialog(m_frame, "Game update avaliable!");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            m_running = false;
+        }
+    }
+
+    private void finishSetup() {
         JsonParser json = new JsonParser();
         JsonObject root = null;
-        try
-        {
+        try {
             root = json.parse(new FileReader("config.json")).getAsJsonObject();
-        }
-        catch (FileNotFoundException e)
-        {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             m_running = false;
         }
@@ -129,14 +134,12 @@ public class Launcher extends Canvas
         m_downloadURL = root.get("downloadURL").getAsString();
         m_gameBinary = root.get("gameBinary").getAsString();
         m_gamePath = root.get("gamePath").getAsString();
+        m_gameVersion = root.get("gameVersion").getAsDouble();
 
-        try
-        {
+        try {
             m_bg = ImageIO.read(new File(root.get("background").getAsString()));
             m_icon = ImageIO.read(new File(root.get("icon").getAsString()));
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
             m_running = false;
         }
@@ -155,32 +158,25 @@ public class Launcher extends Canvas
         m_downloadProgress.setStringPainted(true);
 
         m_southPanel.setBackground(Color.WHITE);
-        m_launchButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                try
-                {
+        m_launchButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
                     final String l_gameBinaryPath = m_gamePath + m_gameBinary;
                     Process l_game = new ProcessBuilder(l_gameBinaryPath).start();
                     m_running = false;
-                }
-                catch (IOException e1)
-                {
+                } catch (IOException e1) {
                     e1.printStackTrace();
                     m_running = false;
                 }
             }
         });
 
-        m_updateButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        m_updateButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 DirectDownloader dd = new DirectDownloader();
 
                 try {
-                    dd.download( new DownloadTask( new URL( m_downloadURL ), new FileOutputStream( m_gamePath + "update.zip" ), new DownloadListener() {
+                    dd.download(new DownloadTask(new URL(m_downloadURL), new FileOutputStream(m_gamePath + "update.zip"), new DownloadListener() {
                         public void onUpdate(int bytes, int totalDownloaded) {
                             m_downloadProgress.setValue(totalDownloaded);
                         }
@@ -196,14 +192,14 @@ public class Launcher extends Canvas
 
                         public void onCancel() {
                         }
-                    } ) );
+                    }));
                 } catch (MalformedURLException e1) {
                     e1.printStackTrace();
                 } catch (FileNotFoundException e1) {
                     e1.printStackTrace();
                 }
 
-                Thread t = new Thread( dd );
+                Thread t = new Thread(dd);
                 t.start();
                 try {
                     t.join();
@@ -227,43 +223,39 @@ public class Launcher extends Canvas
         m_configUpdate = true;
     }
 
-    private void extractUpdate()
-    {
+    private void extractUpdate() {
+        try {
+            ZipFile zipFile = new ZipFile(m_gamePath + "update.zip");
+            zipFile.extractAll(m_gamePath);
+        } catch (ZipException e) {
+            e.printStackTrace();
+            m_running = false;
+        }
     }
 
-	public void run()
-	{
-		while (m_running == true)
-		{
-			update();
-			render();
-		}
-	}
+    public void run() {
+        while (m_running == true) {
+            draw();
+        }
+    }
 
-	private void update()
-	{
-	}
+    private void draw() {
+        BufferStrategy bs = getBufferStrategy();
+        if (bs == null) {
+            createBufferStrategy(3);
+            return;
+        }
 
-    private void render()
-	{
-		BufferStrategy bs = getBufferStrategy();
-		if (bs == null)
-		{
-			createBufferStrategy(3);
-			return;
-		}
+        Graphics g = bs.getDrawGraphics();
 
-		Graphics g = bs.getDrawGraphics();
+        g.drawImage(m_bg, 0, 0, null);
 
-		g.drawImage(m_bg, 0, 0, null);
+        g.dispose();
+        bs.show();
+    }
 
-		g.dispose();
-		bs.show();
-	}
-
-	public static void main(String[] args)
-	{
-		Launcher launcher = new Launcher(args[0]);
-		launcher.run();
-	}
+    public static void main(String[] args) {
+        Launcher launcher = new Launcher(args[0]);
+        launcher.run();
+    }
 }
