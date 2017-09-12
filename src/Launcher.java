@@ -8,11 +8,10 @@
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import org.kamranzafar.jddl.DirectDownloader;
 import org.kamranzafar.jddl.DownloadListener;
 import org.kamranzafar.jddl.DownloadTask;
+import org.zeroturnaround.zip.ZipUtil;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -25,8 +24,10 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static java.lang.System.gc;
 import static java.lang.Thread.sleep;
 
 public class Launcher extends Canvas {
@@ -47,6 +48,9 @@ public class Launcher extends Canvas {
     private JButton m_updateButton;
     private JButton m_launchButton;
     private JProgressBar m_downloadProgress;
+
+    private Path m_updatePath;
+    private boolean m_deleteUpdate = false;
 
     public Launcher(String updateURL) {
         DirectDownloader l_dd = new DirectDownloader();
@@ -90,16 +94,25 @@ public class Launcher extends Canvas {
             System.out.println("Waiting for config...");
         }
 
+        // We draw twice, because the first creates the buffer
+        draw();
+        draw();
+
         try {
             double oldVer = Double.parseDouble(new String(Files.readAllBytes(Paths.get("bin/version.txt"))));
             if (oldVer != m_gameVersion) {
-                JOptionPane.showMessageDialog(m_frame, "Game update avaliable!");
+                JOptionPane.showMessageDialog(m_frame, "Game update available!");
             }
 
         } catch (IOException e) {
             e.printStackTrace();
             m_running = false;
         }
+    }
+
+    public static void main(String[] args) {
+        Launcher launcher = new Launcher(args[0]);
+        launcher.run();
     }
 
     private void finishSetup() {
@@ -173,38 +186,42 @@ public class Launcher extends Canvas {
 
         m_updateButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                DirectDownloader dd = new DirectDownloader();
+                int result = JOptionPane.showConfirmDialog(m_frame, "Download and install update?", "Update?", JOptionPane.YES_NO_OPTION);
+                if (result == JOptionPane.YES_OPTION) {
+                    DirectDownloader dd = new DirectDownloader();
 
-                try {
-                    dd.download(new DownloadTask(new URL(m_downloadURL), new FileOutputStream(m_gamePath + "update.zip"), new DownloadListener() {
-                        public void onUpdate(int bytes, int totalDownloaded) {
-                            m_downloadProgress.setValue(totalDownloaded);
-                        }
+                    try {
+                        dd.download(new DownloadTask(new URL(m_downloadURL), new FileOutputStream(m_gamePath + "update.zip"), new DownloadListener() {
+                            public void onUpdate(int bytes, int totalDownloaded) {
+                                m_downloadProgress.setValue(totalDownloaded);
+                            }
 
-                        public void onStart(String fname, int size) {
-                            m_downloadProgress.setMaximum(size);
-                        }
+                            public void onStart(String fname, int size) {
+                                m_downloadProgress.setMaximum(size);
+                            }
 
-                        public void onComplete() {
-                            m_downloadProgress.setValue(0);
-                            extractUpdate();
-                        }
+                            public void onComplete() {
+                                m_downloadProgress.setValue(0);
+                                extractUpdate();
+                                m_deleteUpdate = true;
+                            }
 
-                        public void onCancel() {
-                        }
-                    }));
-                } catch (MalformedURLException e1) {
-                    e1.printStackTrace();
-                } catch (FileNotFoundException e1) {
-                    e1.printStackTrace();
-                }
+                            public void onCancel() {
+                            }
+                        }));
+                    } catch (MalformedURLException e1) {
+                        e1.printStackTrace();
+                    } catch (FileNotFoundException e1) {
+                        e1.printStackTrace();
+                    }
 
-                Thread t = new Thread(dd);
-                t.start();
-                try {
-                    t.join();
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
+                    Thread t = new Thread(dd);
+                    t.start();
+                    try {
+                        t.join();
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
                 }
             }
         });
@@ -224,17 +241,30 @@ public class Launcher extends Canvas {
     }
 
     private void extractUpdate() {
-        try {
-            ZipFile zipFile = new ZipFile(m_gamePath + "update.zip");
-            zipFile.extractAll(m_gamePath);
-        } catch (ZipException e) {
-            e.printStackTrace();
-            m_running = false;
+        File input = new File(m_gamePath + "update.zip");
+        ZipUtil.unpack(input, new File(m_gamePath));
+
+        m_updatePath = input.toPath();
+
+        JOptionPane.showMessageDialog(m_frame, "Update finished!");
+    }
+
+    private void update() {
+        if (m_deleteUpdate == true) {
+            gc();
+            try {
+                Files.deleteIfExists(m_updatePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            m_deleteUpdate = false;
         }
     }
 
     public void run() {
         while (m_running == true) {
+            update();
             draw();
         }
     }
@@ -252,10 +282,5 @@ public class Launcher extends Canvas {
 
         g.dispose();
         bs.show();
-    }
-
-    public static void main(String[] args) {
-        Launcher launcher = new Launcher(args[0]);
-        launcher.run();
     }
 }
