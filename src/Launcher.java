@@ -94,7 +94,7 @@ public class Launcher extends Canvas {
             System.out.println("Waiting for config...");
         }
 
-        // We draw twice, because the first creates the buffer
+        draw();
         draw();
         draw();
 
