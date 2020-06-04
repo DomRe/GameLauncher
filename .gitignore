@@ -1,7 +1,4 @@
-# System crap
-.DS_Store
-thumbs.db
-.thumbs.db
+bin/
 
-# Folders
-out/
+.classpath
+.project

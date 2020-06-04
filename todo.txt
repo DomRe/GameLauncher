@@ -1,2 +1,0 @@
-- check for updates to game first
-- implement rest of downloading code
