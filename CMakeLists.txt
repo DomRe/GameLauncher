@@ -80,6 +80,17 @@ if (MSVC)
         "dsound.lib"
         "synchronization.lib"
     )
+elseif(NOT APPLE)
+    find_package(CURL REQUIRED)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(WEBVIEW_DEPS REQUIRED libgtk-3-0 libwebkit2gtk-4.0-37)
+
+    set(LIB_FILES
+        "${CURL_LIBRARIES}"
+        "${WEBVIEW_DEPS_LIBRARIES}"
+        "pthread"
+        "dl"
+    )
 else()
     find_package(CURL REQUIRED)
 
@@ -96,11 +107,17 @@ if (MSVC)
 	    "${CMAKE_SOURCE_DIR}/deps/webview"
 	    "${WINDOWS_HEADERS}"
 	)
-else()
+elseif(NOT APPLE)
 	set(HEADERS
 	    "${CURL_INCLUDE_DIRS}"
 	    "${CMAKE_SOURCE_DIR}/deps/webview"
+        "${WEBVIEW_DEPS_INCLUDE_DIRS}"
 	)
+else()
+    set(HEADERS
+        "${CURL_INCLUDE_DIRS}"
+        "${CMAKE_SOURCE_DIR}/deps/webview"
+    )
 endif()
 target_include_directories(${PROJECT_NAME} PUBLIC ${HEADERS})
 
