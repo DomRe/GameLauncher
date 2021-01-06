@@ -138,7 +138,3 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC "${LIB_FILES}")
-
-if (APPLE)
-    target_link_libraries(${PROJECT_NAME} "-framework WebKit")
-endif()
