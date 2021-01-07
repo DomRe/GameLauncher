@@ -2,5 +2,4 @@
 build/
 output/
 
-CMakeSettings.json
 design.txt
