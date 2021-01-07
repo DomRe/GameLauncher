@@ -103,18 +103,21 @@ endif()
 
 if (MSVC)
 	set(HEADERS
+		"${CMAKE_SOURCE_DIR}/deps/json/include"
 	    "${CURL_INCLUDE_DIRS}"
 	    "${CMAKE_SOURCE_DIR}/deps/webview"
 	    "${WINDOWS_HEADERS}"
 	)
 elseif(NOT APPLE)
 	set(HEADERS
+		"${CMAKE_SOURCE_DIR}/deps/json/include"
 	    "${CURL_INCLUDE_DIRS}"
 	    "${CMAKE_SOURCE_DIR}/deps/webview"
         "${WEBVIEW_DEPS_INCLUDE_DIRS}"
 	)
 else()
     set(HEADERS
+    	"${CMAKE_SOURCE_DIR}/deps/json/include"
         "${CURL_INCLUDE_DIRS}"
         "${CMAKE_SOURCE_DIR}/deps/webview"
     )
@@ -138,3 +141,6 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC "${LIB_FILES}")
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/src/front/index.html" "${CMAKE_SOURCE_DIR}/output/bin/${CMAKE_BUILD_TYPE}/assets/front/index.html")
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/src/front/config.json" "${CMAKE_SOURCE_DIR}/output/bin/${CMAKE_BUILD_TYPE}/assets/config.json")

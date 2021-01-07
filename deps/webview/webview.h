@@ -75,10 +75,16 @@ extern "C"
 	// Updates native window size. See WEBVIEW_HINT constants.
 	WEBVIEW_API void webview_set_size(webview_t w, int width, int height, int hints);
 
+	// Set webview render zoom level.
+	WEBVIEW_API void webview_set_zoom_level(webview_t w, const float percentage);
+
 	// Navigates webview to the given URL. URL may be a data URI, i.e.
 	// "data:text/text,<html>...</html>". It is often ok not to url-encode it
 	// properly, webview will re-encode it for you.
 	WEBVIEW_API void webview_navigate(webview_t w, const char* url);
+
+	// Set webview HTML manually.
+	WEBVIEW_API void webview_set_html(webview_t w, const char* html);
 
 	// Injects JavaScript code at the initialization of the new page. Every time
 	// the webview will open a the new page - this initialization code will be
@@ -613,9 +619,19 @@ namespace webview
 			}
 		}
 
+		void set_zoom_level(float percentage)
+		{
+			webkit_web_view_set_zoom_level(WEBKIT_WEB_VIEW(m_webview), percentage);
+		}
+
 		void navigate(const std::string url)
 		{
 			webkit_web_view_load_uri(WEBKIT_WEB_VIEW(m_webview), url.c_str());
+		}
+
+		void set_html(const std::string html)
+		{
+			webkit_web_view_load_html(WEBKIT_WEB_VIEW(m_webview), html.c_str(), NULL);
 		}
 
 		void init(const std::string js)
@@ -815,12 +831,21 @@ namespace webview
 				objc_msgSend(m_window, "setFrame:display:animate:"_sel, CGRectMake(0, 0, width, height), 1, 0);
 			}
 		}
+		void set_zoom_level(const float percentage)
+		{
+			// Ignored on Cocoa
+		}
 		void navigate(const std::string url)
 		{
 			auto nsurl = objc_msgSend(
 			    "NSURL"_cls, "URLWithString:"_sel, objc_msgSend("NSString"_cls, "stringWithUTF8String:"_sel, url.c_str()));
 			objc_msgSend(
 			    m_webview, "loadRequest:"_sel, objc_msgSend("NSURLRequest"_cls, "requestWithURL:"_sel, nsurl));
+		}
+		void set_html(const std::string html)
+		{
+			objc_msgSend(
+			    m_webview, "loadHTMLString:"_sel, objc_msgSend("NSString"_cls, "stringWithUTF8String:"_sel, html.c_str()), nullptr);
 		}
 		void init(const std::string js)
 		{
@@ -876,7 +901,7 @@ namespace webview
 #pragma comment(lib, "windowsapp")
 
 // Edge/Chromium headers and libs
-#include "../windows/include/WebView2.h"
+#include "windows/include/WebView2.h"
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "oleaut32.lib")
 
@@ -888,12 +913,14 @@ namespace webview
 	class browser
 	{
 	public:
-		virtual ~browser()                           = default;
-		virtual bool embed(HWND, bool, msg_cb_t)     = 0;
-		virtual void navigate(const std::string url) = 0;
-		virtual void eval(const std::string js)      = 0;
-		virtual void init(const std::string js)      = 0;
-		virtual void resize(HWND)                    = 0;
+		virtual ~browser()                                  = default;
+		virtual bool embed(HWND, bool, msg_cb_t)            = 0;
+		virtual void set_zoom_level(const float percentage) = 0;
+		virtual void navigate(const std::string url)        = 0;
+		virtual void set_html(const std::string html)       = 0;
+		virtual void eval(const std::string js)             = 0;
+		virtual void init(const std::string js)             = 0;
+		virtual void resize(HWND)                           = 0;
 	};
 
 	//
@@ -943,6 +970,11 @@ namespace webview
 			return true;
 		}
 
+		void set_zoom_level(const float percentage) override
+		{
+			// Ignored on EdgeHTML
+		}
+
 		void navigate(const std::string url) override
 		{
 			std::string html = html_from_uri(url);
@@ -960,6 +992,11 @@ namespace webview
 		void init(const std::string js) override
 		{
 			init_js = init_js + "(function(){" + js + "})();";
+		}
+
+		void set_html(const std::string html) override
+		{
+			m_webview.NavigateToString(winrt::to_hstring(html));
 		}
 
 		void eval(const std::string js) override
@@ -1039,11 +1076,23 @@ namespace webview
 			m_controller->put_Bounds(bounds);
 		}
 
+		void set_zoom_level(const float percentage) override
+		{
+			// Ignored on Edge/Chromium
+		}
+
 		void navigate(const std::string url) override
 		{
 			auto wurl = to_lpwstr(url);
 			m_webview->Navigate(wurl);
 			delete[] wurl;
+		}
+
+		void set_html(const std::string html) override
+		{
+			auto html2 = to_lpwstr(html);
+			m_webview->Navigate(html2);
+			delete[] html2;
 		}
 
 		void init(const std::string js) override
@@ -1305,9 +1354,17 @@ namespace webview
 			}
 		}
 
+		void set_zoom_level(const float percentage)
+		{
+			m_browser->set_zoom_level(percentage);
+		}
 		void navigate(const std::string url)
 		{
 			m_browser->navigate(url);
+		}
+		void set_html(const std::string html)
+		{
+			m_browser->set_html(html);
 		}
 		void eval(const std::string js)
 		{
@@ -1344,6 +1401,11 @@ namespace webview
 		{
 		}
 
+		void set_zoom_level(const float percentage)
+		{
+			browser_engine::set_zoom_level(percentage / 100);
+		}
+
 		void navigate(const std::string url)
 		{
 			if (url == "")
@@ -1361,6 +1423,11 @@ namespace webview
 			{
 				browser_engine::navigate(url);
 			}
+		}
+
+		void set_html(const std::string html)
+		{
+			browser_engine::set_html(html);
 		}
 
 		using binding_t     = std::function<void(std::string, std::string, void*)>;
@@ -1479,9 +1546,19 @@ WEBVIEW_API void webview_set_size(webview_t w, int width, int height, int hints)
 	static_cast<webview::webview*>(w)->set_size(width, height, hints);
 }
 
+WEBVIEW_API void webview_set_zoom_level(webview_t w, const float percentage)
+{
+	static_cast<webview::webview*>(w)->set_zoom_level(percentage);
+}
+
 WEBVIEW_API void webview_navigate(webview_t w, const char* url)
 {
 	static_cast<webview::webview*>(w)->navigate(url);
+}
+
+WEBVIEW_API void webview_set_html(webview_t w, const char* html)
+{
+	static_cast<webview::webview*>(w)->set_html(html);
 }
 
 WEBVIEW_API void webview_init(webview_t w, const char* js)
