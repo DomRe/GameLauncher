@@ -1,74 +1,72 @@
-#include <filesystem>
-#include <fstream>
 #include <functional>
 
-#include <nlohmann/json.hpp>
+#include <base64.h>
 #include <webview.h>
 
-template<typename... Types>
-std::tuple<Types...> parse_config(std::string_view file)
-{
-	nlohmann::json j = {};
-
-	auto path = std::filesystem::path {file};
-	std::ifstream input;
-	input.open(path.string(), std::ifstream::in);
-
-	input >> j;
-
-	input.close();
-
-	std::string title = j.at("title");
-	int width         = j.at("width");
-	int height        = j.at("height");
-	std::string bg    = j.at("bg-url");
-
-	return std::make_tuple(title, width, height, bg);
-}
-
-void replace(std::string& subject, const std::string& search, const std::string& replace)
-{
-	size_t pos = 0;
-	while ((pos = subject.find(search, pos)) != std::string::npos)
-	{
-		subject.replace(pos, search.length(), replace);
-		pos += replace.length();
-	}
-}
+#include "Config.hpp"
+#include "GUI.hpp"
 
 void install()
 {
 }
 
+void update()
+{
+}
+
+void play()
+{
+}
+
 int main(int argc, char* argv[])
 {
+	if (!std::filesystem::exists("assets/downloads"))
+	{
+		std::filesystem::create_directory("assets/downloads");
+	}
+
+	gl::Config config;
+	config.load_json("assets/config.json");
+
+	gl::GUI gui;
+	gui.load_html("assets/front/index.html");
+	gui.replace("%LAUNCHER_NAME%", config.title());
+
 	std::ifstream ifs;
-	ifs.open("assets/front/index.html");
+	ifs.open(config.bg_image(), std::ifstream::in | std::ifstream::binary | std::ifstream::ate);
+	if (!ifs.good())
+	{
+		ifs.close();
+		throw std::runtime_error("Failed to load background image.");
+	}
+	else
+	{
+		const auto size = ifs.tellg();
+		char* data      = new char[size];
+		ifs.seekg(0, std::ifstream::beg);
+		ifs.read(data, size);
+		ifs.close();
 
-	std::string html {(std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>()};
+		const std::string encoded_image = "data:image/png;base64," + base64_encode(reinterpret_cast<unsigned char*>(data), size, false);
+		delete[] data;
 
-	ifs.close();
+		gui.replace("%LAUNCHER_BG_DATA%", encoded_image);
+		webview::webview window {false, nullptr};
 
-	auto [title, width, height, bg] = parse_config<std::string, int, int, std::string>("assets/config.json");
+		std::function<std::string(std::string)> on_exit =
+		    [&](std::string params) -> std::string {
+			window.terminate();
+			return "";
+		};
 
-	replace(html, "%LAUNCHER_NAME%", title);
-	replace(html, "%LAUNCHER_BG_URL%", bg);
+		window.bind("on_exit", on_exit);
 
-	webview::webview window {false, nullptr};
-
-	std::function<std::string(std::string)> on_install =
-	    [&](std::string params) -> std::string {
-		install();
-		return "";
-	};
-
-	window.bind("on_install", on_install);
-
-	window.set_title(title);
-	window.set_size(width, height, WEBVIEW_HINT_FIXED);
-	window.set_html(html);
-	window.run();
-	window.terminate();
+		window.set_title(config.title());
+		window.set_size(config.width(), config.height(), WEBVIEW_HINT_FIXED);
+		window.set_html(gui.html());
+		window.run();
+		window.terminate();
+	}
 
 	return EXIT_SUCCESS;
 }

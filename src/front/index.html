@@ -10,16 +10,16 @@
     <title>%LAUNCHER_NAME%</title>
 </head>
 
-<body style="background-image: url('%LAUNCHER_BG_URL%');">
+<body style="background-image: url(%LAUNCHER_BG_DATA%);">
     <div class="container-fluid">
         <div style="text-align: center; padding-top: 20%;">
             <p style="font-size: 72px; color: #fff; text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;">%LAUNCHER_NAME%</p>
         </div>
         <div style="position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, -50%); margin: 0 auto;">
-            <button type="button" class="btn btn-raised btn-secondary" style="margin-right:1%;" script="on_install()">Install</button>
-            <button type="button" class="btn btn-raised btn-secondary" style="margin-right:1%;">Update</button>
-            <button type="button" class="btn btn-raised btn-secondary" style="margin-right:1%;">Play</button>
-            <button type="button" class="btn btn-raised btn-secondary" style="margin-right:1%;">Exit</button>
+            <button type="button" class="btn btn-raised btn-secondary" ">Install</button>
+            <button type="button" class="btn btn-raised btn-secondary" ">Update</button>
+            <button type="button" class="btn btn-raised btn-secondary" ">Play</button>
+            <button type="button" class="btn btn-raised btn-secondary" " onclick="on_exit()">Exit</button>
         </div>
     </div>
 
