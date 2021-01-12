@@ -29,6 +29,7 @@ set_source_files_properties(*.inl LANGUAGE CXX)
 file(GLOB_RECURSE game_launcher_src
     "${CMAKE_SOURCE_DIR}/src/back/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/back/*.hpp"
+    "${CMAKE_SOURCE_DIR}/deps/base64/base64.cpp"
 )
 
 source_group(${PROJECT_NAME} ${game_launcher_src})
@@ -104,6 +105,7 @@ endif()
 if (MSVC)
 	set(HEADERS
 		"${CMAKE_SOURCE_DIR}/deps/json/include"
+		"${CMAKE_SOURCE_DIR}/deps/base64"
 	    "${CURL_INCLUDE_DIRS}"
 	    "${CMAKE_SOURCE_DIR}/deps/webview"
 	    "${WINDOWS_HEADERS}"
@@ -111,6 +113,7 @@ if (MSVC)
 elseif(NOT APPLE)
 	set(HEADERS
 		"${CMAKE_SOURCE_DIR}/deps/json/include"
+		"${CMAKE_SOURCE_DIR}/deps/base64"
 	    "${CURL_INCLUDE_DIRS}"
 	    "${CMAKE_SOURCE_DIR}/deps/webview"
         "${WEBVIEW_DEPS_INCLUDE_DIRS}"
@@ -118,6 +121,7 @@ elseif(NOT APPLE)
 else()
     set(HEADERS
     	"${CMAKE_SOURCE_DIR}/deps/json/include"
+    	"${CMAKE_SOURCE_DIR}/deps/base64"
         "${CURL_INCLUDE_DIRS}"
         "${CMAKE_SOURCE_DIR}/deps/webview"
     )

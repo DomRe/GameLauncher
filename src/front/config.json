@@ -2,5 +2,6 @@
   "title": "Demo",
   "width": 1280,
   "height": 720,
-  "bg-url": "raw.githubusercontent.com/DomRe/GameLauncher/master/demo_bg.png"
+  "bg-image": "assets/front/demo.png",
+  "executable": ""
 }
