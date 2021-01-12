@@ -20,6 +20,7 @@ matrix:
   fast_finish: false
 
 build_script:
+  - cmd: git submodule update --init --recursive
   - cmd: cmake -G "Visual Studio 16 2019" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -Bbuild -H.
   - cmd: cd build
   - cmd: msbuild game_launcher.sln

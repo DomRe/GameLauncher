@@ -65,7 +65,6 @@ int main(int argc, char* argv[])
 		window.set_size(config.width(), config.height(), WEBVIEW_HINT_FIXED);
 		window.set_html(gui.html());
 		window.run();
-		window.terminate();
 	}
 
 	return EXIT_SUCCESS;
