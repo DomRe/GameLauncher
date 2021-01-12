@@ -1,5 +1,3 @@
-#include <functional>
-
 #include <base64.h>
 #include <webview.h>
 
@@ -53,13 +51,22 @@ int main(int argc, char* argv[])
 		gui.replace("%LAUNCHER_BG_DATA%", encoded_image);
 		webview::webview window {false, nullptr};
 
-		std::function<std::string(std::string)> on_exit =
-		    [&](std::string params) -> std::string {
+		window.bind("on_install", [&](std::string params) -> std::string {
+			return "";
+		});
+
+		window.bind("on_update", [&](std::string params) -> std::string {
+			return "";
+		});
+
+		window.bind("on_play", [&](std::string params) -> std::string {
+			return "";
+		});
+
+		window.bind("on_exit", [&](std::string params) -> std::string {
 			window.terminate();
 			return "";
-		};
-
-		window.bind("on_exit", on_exit);
+		});
 
 		window.set_title(config.title());
 		window.set_size(config.width(), config.height(), WEBVIEW_HINT_FIXED);
