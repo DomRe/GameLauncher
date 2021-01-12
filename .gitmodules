@@ -1,3 +1,6 @@
 [submodule "deps/json"]
 	path = deps/json
 	url = https://github.com/nlohmann/json.git
+[submodule "deps/base64"]
+	path = deps/base64
+	url = https://github.com/ReneNyffenegger/cpp-base64.git
