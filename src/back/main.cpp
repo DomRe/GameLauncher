@@ -3,6 +3,7 @@
 
 #include "Config.hpp"
 #include "GUI.hpp"
+#include "Platform.hpp"
 
 void install()
 {
@@ -60,6 +61,7 @@ int main(int argc, char* argv[])
 		});
 
 		window.bind("on_play", [&](std::string params) -> std::string {
+			gl::run_process(config.executable());
 			return "";
 		});
 
