@@ -3,34 +3,18 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
-
     <title>%LAUNCHER_NAME%</title>
 </head>
 
 <body style="background-image: url(%LAUNCHER_BG_DATA%);">
-    <div class="container-fluid">
-        <div style="text-align: center; padding-top: 20%;">
-            <p style="font-size: 72px; color: #fff; text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;">%LAUNCHER_NAME%</p>
-        </div>
-        <div style="position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, -50%); margin: 0 auto;">
-            <button type="button" class="btn btn-raised btn-secondary" onclick="on_install()">Install</button>
-            <button type="button" class="btn btn-raised btn-secondary" onclick="on_update()">Update</button>
-            <button type="button" class="btn btn-raised btn-secondary" onclick="on_play()">Play</button>
-            <button type="button" class="btn btn-raised btn-secondary" onclick="on_exit()">Exit</button>
-        </div>
+    <div style="text-align: center; padding-top: 20%;">
+        <p style="font-size: 72px; color: #fff; text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;">%LAUNCHER_NAME%</p>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
-    <script>
-        $(document).ready(function () {
-            $('body').bootstrapMaterialDesign();
-        });
-    </script>
+    <div style="position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, -50%); margin: 0 auto;">
+        <button type="button" onclick="on_install()">Install</button>
+        <button type="button" onclick="on_update()">Update</button>
+        <button type="button" onclick="on_play()">Play</button>
+        <button type="button" onclick="on_exit()">Exit</button>
+    </div>
 </body>
-
 </html>
