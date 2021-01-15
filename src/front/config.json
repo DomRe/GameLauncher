@@ -4,5 +4,5 @@
   "height": 480,
   "bg-image": "assets/front/demo.png",
   "executable": "assets/unpacked/",
-  "install-url": "https://github.com/DomRe/GameLauncher/blob/master/test_data/install/version.json"
+  "install-url": "https://raw.githubusercontent.com/DomRe/GameLauncher/master/test_data/install/version.json"
 }

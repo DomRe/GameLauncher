@@ -19,7 +19,7 @@ namespace gl
 	///
 	/// \path Path to the application.
 	///
-	void run_process(std::string_view path);
+	[[nodiscard]] const bool run_process(std::string_view path);
 } // namespace gl
 
 #endif

@@ -2,6 +2,7 @@
 #include <webview.h>
 
 #include "Config.hpp"
+#include "Downloader.hpp"
 #include "GUI.hpp"
 #include "Platform.hpp"
 
@@ -53,6 +54,13 @@ int main(int argc, char* argv[])
 		webview::webview window {false, nullptr};
 
 		window.bind("on_install", [&](std::string params) -> std::string {
+			gl::Downloader dl {config.install_url()};
+			dl.set_func_callback([&](void*, double, double, double, double) {
+				return 0;
+			});
+
+			dl.write_to_file("assets/downloads/install_version.json");
+
 			return "";
 		});
 
@@ -61,7 +69,10 @@ int main(int argc, char* argv[])
 		});
 
 		window.bind("on_play", [&](std::string params) -> std::string {
-			gl::run_process(config.executable());
+			if (gl::run_process(config.executable()))
+			{
+				window.terminate();
+			}
 			return "";
 		});
 

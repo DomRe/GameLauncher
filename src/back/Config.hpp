@@ -19,7 +19,7 @@ namespace gl
 	{
 	public:
 		inline Config()
-		    : m_title {"default"}, m_width {1280}, m_height {720}, m_bg_image {""}, m_executable {""}
+		    : m_title {"default"}, m_width {1280}, m_height {720}, m_bg_image {""}, m_executable {""}, m_install_url {""}
 		{
 		}
 
@@ -37,11 +37,12 @@ namespace gl
 			{
 				ifs >> json;
 
-				m_title      = json.at("title");
-				m_width      = json.at("width");
-				m_height     = json.at("height");
-				m_bg_image   = json.at("bg-image");
-				m_executable = json.at("executable");
+				m_title       = json.at("title");
+				m_width       = json.at("width");
+				m_height      = json.at("height");
+				m_bg_image    = json.at("bg-image");
+				m_executable  = json.at("executable");
+				m_install_url = json.at("install-url");
 
 				if (std::filesystem::path(m_bg_image).extension() != ".png")
 				{
@@ -83,12 +84,18 @@ namespace gl
 			return m_executable;
 		}
 
+		[[nodiscard]] inline const std::string& install_url() const noexcept
+		{
+			return m_install_url;
+		}
+
 	private:
 		std::string m_title;
 		int m_width;
 		int m_height;
 		std::string m_bg_image;
 		std::string m_executable;
+		std::string m_install_url;
 	};
 } // namespace gl
 

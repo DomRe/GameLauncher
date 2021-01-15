@@ -7,22 +7,17 @@
 
 #include <Windows.h>
 
-#include "Windows.hpp"
+#include "Platform.hpp"
 
 namespace gl
 {
-	void run_process(std::string_view path)
+	const bool run_process(std::string_view path)
 	{
-		const std::wstring wstr = std::wstring(path.begin(), path.end());
+		const auto str = static_cast<std::string>(path);
 
 		STARTUPINFO startup_info = {sizeof(startup_info)};
 		PROCESS_INFORMATION process_info;
-		if (CreateProcess(wstr.c_str(), nullptr, nullptr, nullptr, TRUE, 0, nullptr, nullptr, &startup_info, &process_info))
-		{
-			WaitForSingleObject(process_info.hProcess, INFINITE);
-			CloseHandle(process_info.hProcess);
-			CloseHandle(process_info.hThread);
-		}
+		return CreateProcess(str.c_str(), nullptr, nullptr, nullptr, TRUE, 0, nullptr, nullptr, &startup_info, &process_info);
 	}
 } // namespace gl
 
