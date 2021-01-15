@@ -20,7 +20,6 @@ if (MSVC)
         /ZI
         /Od
         /RTC1
-        /MTd
         /GS
         /GR
         /sdl

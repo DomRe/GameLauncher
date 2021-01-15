@@ -60,11 +60,15 @@ if (MSVC)
     set(WINDOWS_HEADERS
     	"${CMAKE_SOURCE_DIR}/deps/webview/include"
     )
-
+    
     set(LIB_FILES
         "${CURL_LIBRARIES}"
         "${WEBVIEW_GUID}"
         "${WEBVIEW_LOADER}"
+        "ws2_32.lib"
+        "wldap32.lib"
+        "crypt32.lib"
+        "normaliz.lib"
         "opengl32.lib"
         "kernel32.lib"
         "user32.lib"
