@@ -4,3 +4,6 @@
 [submodule "deps/base64"]
 	path = deps/base64
 	url = https://github.com/ReneNyffenegger/cpp-base64.git
+[submodule "deps/curlcpp"]
+	path = deps/curlcpp
+	url = https://github.com/JosephP91/curlcpp.git
