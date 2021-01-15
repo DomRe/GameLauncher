@@ -30,6 +30,7 @@ file(GLOB_RECURSE game_launcher_src
     "${CMAKE_SOURCE_DIR}/src/back/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/back/*.hpp"
     "${CMAKE_SOURCE_DIR}/deps/base64/base64.cpp"
+    "${CMAKE_SOURCE_DIR}/deps/curlcpp/src/*.cpp"
 )
 
 source_group(${PROJECT_NAME} ${game_launcher_src})
@@ -108,6 +109,7 @@ if (MSVC)
 		"${CMAKE_SOURCE_DIR}/deps/base64"
 	    "${CURL_INCLUDE_DIRS}"
 	    "${CMAKE_SOURCE_DIR}/deps/webview"
+	    "${CMAKE_SOURCE_DIR}/deps/curlcpp/include"
 	    "${WINDOWS_HEADERS}"
 	)
 elseif(NOT APPLE)
@@ -116,6 +118,7 @@ elseif(NOT APPLE)
 		"${CMAKE_SOURCE_DIR}/deps/base64"
 	    "${CURL_INCLUDE_DIRS}"
 	    "${CMAKE_SOURCE_DIR}/deps/webview"
+	    "${CMAKE_SOURCE_DIR}/deps/curlcpp/include"
         "${WEBVIEW_DEPS_INCLUDE_DIRS}"
 	)
 else()
@@ -124,6 +127,7 @@ else()
     	"${CMAKE_SOURCE_DIR}/deps/base64"
         "${CURL_INCLUDE_DIRS}"
         "${CMAKE_SOURCE_DIR}/deps/webview"
+        "${CMAKE_SOURCE_DIR}/deps/curlcpp/include"
     )
 endif()
 target_include_directories(${PROJECT_NAME} PUBLIC ${HEADERS})
