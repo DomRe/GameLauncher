@@ -5,6 +5,7 @@
 #include "Downloader.hpp"
 #include "GUI.hpp"
 #include "Platform.hpp"
+#include "Version.hpp"
 
 void install()
 {
@@ -54,12 +55,22 @@ int main(int argc, char* argv[])
 		webview::webview window {false, nullptr};
 
 		window.bind("on_install", [&](std::string params) -> std::string {
-			gl::Downloader dl {config.install_url()};
-			dl.set_func_callback([&](void*, double, double, double, double) {
+			{
+				gl::Downloader dl {config.install_url()};
+				dl.set_func_callback([&](void*, double, double, double, double) {
+					return 0;
+				});
+				dl.write_to_file("assets/downloads/install_version.json");
+			}
+
+			gl::Version version;
+			version.load_json("assets/downloads/install_version.json");
+
+			gl::Downloader installer {version.url()};
+			installer.set_func_callback([&](void*, double, double, double, double) {
 				return 0;
 			});
-
-			dl.write_to_file("assets/downloads/install_version.json");
+			installer.write_to_file("assets/downloads/install.zip");
 
 			return "";
 		});
